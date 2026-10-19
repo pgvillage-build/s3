@@ -22,25 +22,30 @@ MinIO is no longer a viable upstream for us:
 
 ## Longlist
 
-| # | Project | GitHub | Language | License | Local FS model | Packaging effort | Maturity / status | Notes |
-|---|---------|--------|----------|---------|----------------|------------------|-------------------|-------|
-| 1 | **Versity S3 Gateway (versitygw)** | https://github.com/versity/versitygw | Go | Apache-2.0 | **Plain files** (POSIX backend; metadata in xattrs) | Low: single static binary; upstream already ships `.rpm`/`.deb` | Active, commercially backed (Versity) | Built for exactly this: an S3 front-end for an existing POSIX FS. Also has ScoutFS, Azure and S3-proxy backends. Supports multipart, versioning, object lock, and an IAM-lite with multiple accounts. Needs xattr support on the FS. **Strong candidate.** |
-| 2 | **rclone `serve s3`** | https://github.com/rclone/rclone | Go | MIT | **Plain files** (any rclone remote, incl. local dir) | Low: single binary; upstream ships `.rpm`/`.deb`; already in most distros | rclone is very mature; `serve s3` (since v1.65) is younger and labelled experimental-ish | Very simple. Uses gofakes3 underneath. Limited auth (one or a few static keys), and no versioning or object lock. Multipart is buffered. Fine for dev/test and light use. |
-| 3 | **RustFS** | https://github.com/rustfs/rustfs | Rust | Apache-2.0 | Opaque (MinIO-style `xl.meta`, erasure coding) | Low–medium: single binary, cargo build; upstream has packages | 1.0 GA in Sep 2026; young. Distributed mode is less proven | Most direct "drop-in MinIO" replacement, with a console, IAM, versioning, and object lock. Data on disk is not plain files. |
-| 4 | **SeaweedFS** | https://github.com/seaweedfs/seaweedfs | Go | Apache-2.0 | Opaque (volume files); filer metadata in embedded leveldb or an external DB | Low: single binary (`weed`) | Mature, widely used | Can run all-in-one (`weed server -s3`). Scales to billions of small files. More moving parts (master, volume, filer) than needed for "simple". Some features are enterprise-only. |
-| 5 | **Garage** (Deuxfleurs) | https://github.com/deuxfleurs-org/garage (mirror; primary: https://git.deuxfleurs.fr/Deuxfleurs/garage) | Rust | AGPLv3 | Opaque (content-addressed blocks + LMDB/SQLite metadata) | Low: single static binary | Mature for its niche (geo-distributed small clusters) | Light and designed for self-hosting. Narrower S3 API (limited ACL/IAM; versioning/object lock missing or limited). |
-| 6 | **pgsty/minio** (community MinIO fork) | https://github.com/pgsty/minio | Go | AGPLv3 | Opaque (`xl.meta`); single-drive mode | Low: same as MinIO; fork ships binaries/rpm/deb | Maintained by one person (Pigsty), so the bus factor is low. Scope is security fixes only | Least migration effort, since it is functionally MinIO with the console restored. Long-term risk: one maintainer, no new features. |
-| 7 | **S3Proxy** (gaul/s3proxy) | https://github.com/gaul/s3proxy | Java | Apache-2.0 | **Plain files** (jclouds `filesystem` / `filesystem-nio2` backend), or other blob stores | Medium: needs a JRE, so package a fat jar plus a systemd unit | Mature, small project | Simple. Also useful as a translation proxy (S3 → Azure/GCS/etc.). Single identity. Metadata stored in xattrs. |
-| 8 | **Zenko CloudServer** (Scality) | https://github.com/scality/cloudserver | Node.js | Apache-2.0 | Opaque (`file` backend with its own data/metadata layout) | High: Node.js app with native deps | Maintained by Scality, but focus is their commercial product | Broad S3 API coverage. Heavy-ish for "simple". |
-| 9 | **Ceph RGW** | https://github.com/ceph/ceph | C++ | LGPL-2.1 | Opaque (RADOS); no plain-FS mode | Distro packages exist; building yourself is heavy | Very mature | Gold standard for S3 compatibility, but massive overkill for "expose a local FS". Listed for completeness. |
-| 10 | **OpenStack Swift + s3api** | https://github.com/openstack/swift (mirror; primary: https://opendev.org/openstack/swift) | Python | Apache-2.0 | Opaque | High | Mature, declining | Overkill. |
-| 11 | **Apache Ozone** | https://github.com/apache/ozone | Java | Apache-2.0 | Opaque | High (JVM, multiple services) | Mature (Hadoop ecosystem) | Overkill unless you run Hadoop. |
-| 12 | **CubeFS** (CNCF) | https://github.com/cubefs/cubefs | Go | Apache-2.0 | Opaque | High (multi-component) | CNCF graduated | Distributed FS with an S3 gateway (ObjectNode). Overkill. |
-| 13 | **JuiceFS S3 gateway** | https://github.com/juicedata/juicefs | Go | Apache-2.0 core; gateway is based on a MinIO fork (AGPLv3) | Opaque (chunks in an object store + metadata DB) | Medium | Mature | Wrong direction: it puts S3 in front of JuiceFS, which itself needs an object store. Not a fit. |
-| 14 | **gofakes3** | https://github.com/johannesboyne/gofakes3 | Go | MIT | In-memory / bolt / plain-FS backends | Low (library; tiny wrapper needed) | Test-grade | The library behind rclone `serve s3`. Only for testing. |
-| 15 | **Moto (server mode)** | https://github.com/getmoto/moto | Python | Apache-2.0 | In-memory | Medium | Test-grade | AWS mock for CI only. |
-| 16 | **LocalStack** | https://github.com/localstack/localstack | Python | Community edition being folded into an account-gated product | In-memory / persisted | Medium | Test-grade | CI only. License and terms are drifting. Not recommended. |
-| 17 | **s3gw** (SUSE/Aquarist, RGW + SFS) | https://github.com/aquarist-labs/s3gw | C++ | Apache-2.0 / LGPL | SQLite + files | – | **Discontinued** | Listed only to rule it out. |
+| # | Project | GitHub | ★ Stars | Language | License | Local FS model | Packaging effort | Maturity / status | Notes |
+|---|---------|--------|-------|----------|---------|----------------|------------------|-------------------|-------|
+| 1 | **Versity S3 Gateway (versitygw)** | https://github.com/versity/versitygw | 3.0k | Go | Apache-2.0 | **Plain files** (POSIX backend; metadata in xattrs) | Low: single static binary; upstream already ships `.rpm`/`.deb` | Active, commercially backed (Versity) | Built for exactly this: an S3 front-end for an existing POSIX FS. Also has ScoutFS, Azure and S3-proxy backends. Supports multipart, versioning, object lock, and an IAM-lite with multiple accounts. Needs xattr support on the FS. **Strong candidate.** |
+| 2 | **rclone `serve s3`** | https://github.com/rclone/rclone | 60.4k ¹ | Go | MIT | **Plain files** (any rclone remote, incl. local dir) | Low: single binary; upstream ships `.rpm`/`.deb`; already in most distros | rclone is very mature; `serve s3` (since v1.65) is younger and labelled experimental-ish | Very simple. Uses gofakes3 underneath. Limited auth (one or a few static keys), and no versioning or object lock. Multipart is buffered. Fine for dev/test and light use. |
+| 3 | **RustFS** | https://github.com/rustfs/rustfs | 35.1k | Rust | Apache-2.0 | Opaque (MinIO-style `xl.meta`, erasure coding) | Low–medium: single binary, cargo build; upstream has packages | 1.0 GA in Sep 2026; young. Distributed mode is less proven | Most direct "drop-in MinIO" replacement, with a console, IAM, versioning, and object lock. Data on disk is not plain files. |
+| 4 | **SeaweedFS** | https://github.com/seaweedfs/seaweedfs | 35.6k | Go | Apache-2.0 | Opaque (volume files); filer metadata in embedded leveldb or an external DB | Low: single binary (`weed`) | Mature, widely used | Can run all-in-one (`weed server -s3`). Scales to billions of small files. More moving parts (master, volume, filer) than needed for "simple". Some features are enterprise-only. |
+| 5 | **Garage** (Deuxfleurs) | https://github.com/deuxfleurs-org/garage (mirror; primary: https://git.deuxfleurs.fr/Deuxfleurs/garage) | 4.7k ² | Rust | AGPLv3 | Opaque (content-addressed blocks + LMDB/SQLite metadata) | Low: single static binary | Mature for its niche (geo-distributed small clusters) | Light and designed for self-hosting. Narrower S3 API (limited ACL/IAM; versioning/object lock missing or limited). |
+| 6 | **Silo** (pgsty, formerly `pgsty/minio`; community MinIO fork) | https://github.com/pgsty/silo | 4.2k | Go | AGPLv3 | Opaque (`xl.meta`); single-drive mode | Low: same as MinIO; fork ships binaries/rpm/deb | Maintained by one person (Pigsty), so the bus factor is low. Scope is security fixes only | Least migration effort, since it is functionally MinIO with the console restored. Long-term risk: one maintainer, no new features. |
+| 7 | **S3Proxy** (gaul/s3proxy) | https://github.com/gaul/s3proxy | 2.4k | Java | Apache-2.0 | **Plain files** (jclouds `filesystem` / `filesystem-nio2` backend), or other blob stores | Medium: needs a JRE, so package a fat jar plus a systemd unit | Mature, small project | Simple. Also useful as a translation proxy (S3 → Azure/GCS/etc.). Single identity. Metadata stored in xattrs. |
+| 8 | **Zenko CloudServer** (Scality) | https://github.com/scality/cloudserver | 2.0k | Node.js | Apache-2.0 | Opaque (`file` backend with its own data/metadata layout) | High: Node.js app with native deps | Maintained by Scality, but focus is their commercial product | Broad S3 API coverage. Heavy-ish for "simple". |
+| 9 | **Ceph RGW** | https://github.com/ceph/ceph | 17.1k | C++ | LGPL-2.1 | Opaque (RADOS); no plain-FS mode | Distro packages exist; building yourself is heavy | Very mature | Gold standard for S3 compatibility, but massive overkill for "expose a local FS". Listed for completeness. |
+| 10 | **OpenStack Swift + s3api** | https://github.com/openstack/swift (mirror; primary: https://opendev.org/openstack/swift) | 2.8k | Python | Apache-2.0 | Opaque | High | Mature, declining | Overkill. |
+| 11 | **Apache Ozone** | https://github.com/apache/ozone | 1.3k | Java | Apache-2.0 | Opaque | High (JVM, multiple services) | Mature (Hadoop ecosystem) | Overkill unless you run Hadoop. |
+| 12 | **CubeFS** (CNCF) | https://github.com/cubefs/cubefs | 5.7k | Go | Apache-2.0 | Opaque | High (multi-component) | CNCF graduated | Distributed FS with an S3 gateway (ObjectNode). Overkill. |
+| 13 | **JuiceFS S3 gateway** | https://github.com/juicedata/juicefs | 14.6k | Go | Apache-2.0 core; gateway is based on a MinIO fork (AGPLv3) | Opaque (chunks in an object store + metadata DB) | Medium | Mature | Wrong direction: it puts S3 in front of JuiceFS, which itself needs an object store. Not a fit. |
+| 14 | **gofakes3** | https://github.com/johannesboyne/gofakes3 | 0.9k | Go | MIT | In-memory / bolt / plain-FS backends | Low (library; tiny wrapper needed) | Test-grade | The library behind rclone `serve s3`. Only for testing. |
+| 15 | **Moto (server mode)** | https://github.com/getmoto/moto | 8.7k | Python | Apache-2.0 | In-memory | Medium | Test-grade | AWS mock for CI only. |
+| 16 | **LocalStack** | https://github.com/localstack/localstack | 65.1k | Python | Community edition being folded into an account-gated product | In-memory / persisted | Medium | **Repo archived** (last push Mar 2026) | CI only. Not recommended. |
+| 17 | **s3gw** (SUSE/Aquarist, RGW + SFS) | https://github.com/s3gw-tech/s3gw | 0.2k | C++ | Apache-2.0 / LGPL | SQLite + files | – | **Discontinued** | Listed only to rule it out. |
+
+¹ Stars are for rclone as a whole, not for `serve s3` specifically.
+² Stars on the GitHub mirror only. Garage is developed on git.deuxfleurs.fr, so this undercounts its popularity.
+
+Star counts were fetched from the GitHub API on 2026-10-19. Stars measure interest, not health. Treat them as a rough popularity signal next to the community column. For comparison, the archived `minio/minio` repo has 61.3k stars.
 
 ### Legend
 
@@ -51,15 +56,15 @@ MinIO is no longer a viable upstream for us:
 
 Against the requirements (license, community, simple, self-packaged rpm/deb, local FS as S3, Go/Rust):
 
-| Project | GitHub | Go/Rust | License | Community / governance | Simple | Easy rpm/deb | Plain FS | S3 coverage |
-|---|---|---|---|---|---|---|---|---|
-| versitygw | https://github.com/versity/versitygw | ✅ Go | ✅ Apache-2.0 | ⚠ Vendor-led (Versity), accepts outside PRs | ✅ | ✅ | ✅ | ✅ good |
-| rclone serve s3 | https://github.com/rclone/rclone | ✅ Go | ✅ MIT | ✅ Large, long-lived community with many contributors | ✅ | ✅ | ✅ | ⚠ basic |
-| S3Proxy | https://github.com/gaul/s3proxy | ❌ Java | ✅ Apache-2.0 | ⚠ Mostly a single maintainer | ✅ | ⚠ JVM | ✅ | ⚠ basic |
-| RustFS | https://github.com/rustfs/rustfs | ✅ Rust | ✅ Apache-2.0 | ⚠ Vendor-led (RustFS company), young, fast-growing | ✅ | ✅ | ❌ | ✅ good |
-| SeaweedFS | https://github.com/seaweedfs/seaweedfs | ✅ Go | ✅ Apache-2.0 | ⚠ One lead maintainer, plus a commercial enterprise edition | ⚠ | ✅ | ❌ | ✅ good |
-| Garage | https://github.com/deuxfleurs-org/garage | ✅ Rust | ✅ AGPLv3 | ✅ Non-profit collective (Deuxfleurs), publicly funded (NLnet/NGI). Contributions via their Forgejo, not GitHub | ✅ | ✅ | ❌ | ⚠ limited |
-| pgsty/minio | https://github.com/pgsty/minio | ✅ Go | ✅ AGPLv3 | ❌ Single maintainer, scope is security fixes only | ✅ | ✅ | ❌ | ✅ good |
+| Project | GitHub | ★ Stars | Go/Rust | License | Community / governance | Simple | Easy rpm/deb | Plain FS | S3 coverage |
+|---|---|---|---|---|---|---|---|---|---|
+| versitygw | https://github.com/versity/versitygw | 3.0k | ✅ Go | ✅ Apache-2.0 | ⚠ Vendor-led (Versity), accepts outside PRs | ✅ | ✅ | ✅ | ✅ good |
+| rclone serve s3 | https://github.com/rclone/rclone | 60.4k ¹ | ✅ Go | ✅ MIT | ✅ Large, long-lived community with many contributors | ✅ | ✅ | ✅ | ⚠ basic |
+| S3Proxy | https://github.com/gaul/s3proxy | 2.4k | ❌ Java | ✅ Apache-2.0 | ⚠ Mostly a single maintainer | ✅ | ⚠ JVM | ✅ | ⚠ basic |
+| RustFS | https://github.com/rustfs/rustfs | 35.1k | ✅ Rust | ✅ Apache-2.0 | ⚠ Vendor-led (RustFS company), young, fast-growing | ✅ | ✅ | ❌ | ✅ good |
+| SeaweedFS | https://github.com/seaweedfs/seaweedfs | 35.6k | ✅ Go | ✅ Apache-2.0 | ⚠ One lead maintainer, plus a commercial enterprise edition | ⚠ | ✅ | ❌ | ✅ good |
+| Garage | https://github.com/deuxfleurs-org/garage | 4.7k ² | ✅ Rust | ✅ AGPLv3 | ✅ Non-profit collective (Deuxfleurs), publicly funded (NLnet/NGI). Contributions via their Forgejo, not GitHub | ✅ | ✅ | ❌ | ⚠ limited |
+| Silo (pgsty/minio) | https://github.com/pgsty/silo | 4.2k | ✅ Go | ✅ AGPLv3 | ❌ Single maintainer, scope is security fixes only | ✅ | ✅ | ❌ | ✅ good |
 
 The Go/Rust preference rules out S3Proxy (Java), Zenko CloudServer (Node.js), Swift and Moto (Python), and Ozone (Java). It leaves Ceph RGW (C++) further behind.
 
