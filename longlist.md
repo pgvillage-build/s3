@@ -17,6 +17,7 @@ MinIO is no longer a viable upstream for us:
 3. **We can build it ourselves and package it as RPM and DEB**. Go and Rust static binaries are easiest. JVM and Node.js need more work.
 4. **Expose a local filesystem as an S3 endpoint**. Ideally objects are stored as **plain files** that stay readable without the tool ("passthrough"), not as an opaque blob/erasure format.
 5. Reasonable S3 API coverage: multipart upload, ListObjectsV2, SigV4, presigned URLs, ideally versioning, object lock, and multiple users/keys. pgBackRest, WAL-G, and Barman need multipart and SigV4.
+6. **Written in Go or Rust (strong preference)**. This matches our in-house skills, so we can patch, build, and audit the code ourselves. It also gives a single static binary without a runtime (no JVM, Node.js, or Python), which keeps rpm/deb packaging simple.
 
 ## Longlist
 
@@ -47,17 +48,19 @@ MinIO is no longer a viable upstream for us:
 
 ## First-cut assessment
 
-Against the requirements (simple, permissive license, self-packaged rpm/deb, local FS as S3):
+Against the requirements (simple, permissive license, self-packaged rpm/deb, local FS as S3, Go/Rust):
 
-| Project | License OK | Simple | Easy rpm/deb | Plain FS | S3 coverage |
-|---|---|---|---|---|---|
-| versitygw | ✅ | ✅ | ✅ | ✅ | ✅ good |
-| rclone serve s3 | ✅ | ✅ | ✅ | ✅ | ⚠ basic |
-| S3Proxy | ✅ | ✅ | ⚠ JVM | ✅ | ⚠ basic |
-| RustFS | ✅ | ✅ | ✅ | ❌ | ✅ good |
-| SeaweedFS | ✅ | ⚠ | ✅ | ❌ | ✅ good |
-| Garage | ❌ AGPL | ✅ | ✅ | ❌ | ⚠ limited |
-| pgsty/minio | ❌ AGPL | ✅ | ✅ | ❌ | ✅ good |
+| Project | Go/Rust | License OK | Simple | Easy rpm/deb | Plain FS | S3 coverage |
+|---|---|---|---|---|---|---|
+| versitygw | ✅ Go | ✅ | ✅ | ✅ | ✅ | ✅ good |
+| rclone serve s3 | ✅ Go | ✅ | ✅ | ✅ | ✅ | ⚠ basic |
+| S3Proxy | ❌ Java | ✅ | ✅ | ⚠ JVM | ✅ | ⚠ basic |
+| RustFS | ✅ Rust | ✅ | ✅ | ✅ | ❌ | ✅ good |
+| SeaweedFS | ✅ Go | ✅ | ⚠ | ✅ | ❌ | ✅ good |
+| Garage | ✅ Rust | ❌ AGPL | ✅ | ✅ | ❌ | ⚠ limited |
+| pgsty/minio | ✅ Go | ❌ AGPL | ✅ | ✅ | ❌ | ✅ good |
+
+The Go/Rust preference rules out S3Proxy (Java), Zenko CloudServer (Node.js), Swift and Moto (Python), and Ozone (Java). It leaves Ceph RGW (C++) further behind. All three shortlisted options are Go or Rust.
 
 **Proposed shortlist:**
 
